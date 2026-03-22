@@ -13,7 +13,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 public class RegisterActivity  extends AppCompatActivity {
     private EditText etName, etEmail, etPassword;
-    private Button btnRegister, btnTabConnexion;
+    private Button btnRegister, btnTabConnexion, btnTabInscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,16 +26,19 @@ public class RegisterActivity  extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnRegister = findViewById(R.id.btnRegister);
         btnTabConnexion = findViewById(R.id.btnTabConnexion);
+        btnTabInscription = findViewById(R.id.btnTabInscription);
 
         // Navigation vers l'écran de connexion
-        btnTabConnexion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish(); // Ferme l'activité actuelle
-            }
-        });
+        if (btnTabConnexion != null) {
+            btnTabConnexion.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish(); // Ferme l'activité actuelle
+                }
+            });
+        }
 
         // Action d'inscription
         btnRegister.setOnClickListener(new View.OnClickListener() {

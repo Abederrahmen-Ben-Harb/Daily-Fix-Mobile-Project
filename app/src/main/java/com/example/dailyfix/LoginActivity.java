@@ -31,6 +31,27 @@ public class LoginActivity extends AppCompatActivity {
         btnTabInscription = findViewById(R.id.btnTabInscription);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
 
+        // Navigation vers l'inscription via l'onglet
+        if (btnTabInscription != null) {
+            btnTabInscription.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+                    finish();
+                }
+            });
+        }
+
+        // Navigation vers la connexion (déjà sur cet écran, mais pour la cohérence)
+        if (btnTabConnexion != null) {
+            btnTabConnexion.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Déjà sur LoginActivity
+                }
+            });
+        }
+
         // Gestion du clic sur le bouton de connexion
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,14 +104,16 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Navigation vers l'écran d'inscription
-        btnTabInscription.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-                finish(); // Ferme l'activité actuelle pour éviter d'empiler les écrans
-            }
-        });
+        // Navigation vers l'écran d'inscription (doublon supprimé si nécessaire, mais ici on garde la logique existante avec sécurité)
+        if (btnTabInscription != null) {
+            btnTabInscription.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+        }
     }
 }
