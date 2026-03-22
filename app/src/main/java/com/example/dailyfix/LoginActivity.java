@@ -45,11 +45,11 @@ public class LoginActivity extends AppCompatActivity {
                     User user = new User(email, password);
                     ApiService apiService = ApiClient.getClient().create(ApiService.class);
 
-                    Call<User> call = apiService.loginUser(user);
-                    call.enqueue(new Callback<User>() {
+                    Call<LoginResponse> call = apiService.loginUser(user);
+                    call.enqueue(new Callback<LoginResponse>() {
                         @Override
-                        public void onResponse(Call<User> call, Response<User> response) {
-                            if (response.isSuccessful()) {
+                        public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                            if (response.isSuccessful() && response.body() != null) {
                                 Toast.makeText(LoginActivity.this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
                                 // Rediriger vers le tableau de bord (DashboardActivity)
                                 // startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
@@ -59,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onFailure(Call<User> call, Throwable t) {
+                        public void onFailure(Call<LoginResponse> call, Throwable t) {
                             Toast.makeText(LoginActivity.this, "Erreur réseau : " + t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
