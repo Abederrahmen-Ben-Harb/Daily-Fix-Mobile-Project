@@ -5,10 +5,10 @@ import com.google.gson.annotations.SerializedName;
 public class LoginResponse {
     @SerializedName("success")
     private boolean success;
-
+    
     @SerializedName("token")
     private String token;
-
+    
     @SerializedName("user")
     private User user;
 
