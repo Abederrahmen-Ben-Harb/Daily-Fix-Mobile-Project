@@ -42,51 +42,70 @@ public class RegisterActivity  extends AppCompatActivity {
         }
 
         // Action d'inscription
-        btnRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registerUser();
-            }
-        });
+        if (btnRegister != null) {
+            btnRegister.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    registerUser();
+                }
+            });
+        }
     }
 
     private void registerUser() {
-        String name = etName.getText().toString().trim();
-        String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
+        try {
+            if (etName == null || etEmail == null || etPassword == null) {
+                Toast.makeText(this, "Erreur d'affichage. Réessayez.", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
-            return;
-        }
+            String name = etName.getText().toString().trim();
+            String email = etEmail.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
 
-        // Appel de l'API Node.js via Retrofit
-        User user = new User(name, email, password);
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        Call<RegisterResponse> call = apiService.registerUser(user);
-        call.enqueue(new Callback<RegisterResponse>() {
-            @Override
-            public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(RegisterActivity.this, "Inscription réussie !", Toast.LENGTH_SHORT).show();
-                    // Rediriger vers l'écran de connexion après succès
-                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                    finish();
-                } else {
-                    String errorMsg = "Erreur lors de l'inscription";
-                    if (response.code() == 400) {
-                        errorMsg = "Données invalides ou utilisateur déjà existant";
+            // Appel de l'API Node.js via Retrofit
+            User user = new User(name, email, password);
+            ApiService apiService = ApiClient.getClient().create(ApiService.class);
+
+            Call<RegisterResponse> call = apiService.registerUser(user);
+            call.enqueue(new Callback<RegisterResponse>() {
+                @Override
+                public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
+                    if (isDestroyed()) return;
+                    try {
+                        if (response.isSuccessful() && response.body() != null) {
+                            Toast.makeText(RegisterActivity.this, "Inscription réussie !", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                            finish();
+                        } else {
+                            String errorMsg = "Erreur lors de l'inscription";
+                            if (response.code() == 400) {
+                                errorMsg = "Données invalides ou utilisateur déjà existant";
+                            }
+                            Toast.makeText(RegisterActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Log.e("RegisterActivity", "Erreur onResponse", e);
+                        Toast.makeText(RegisterActivity.this, "Erreur : " + e.getMessage(), Toast.LENGTH_LONG).show();
                     }
-                    Toast.makeText(RegisterActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                 }
-            }
 
-            @Override
-            public void onFailure(Call<RegisterResponse> call, Throwable t) {
-                Log.e("RegisterActivity", "Erreur réseau", t);
-                Toast.makeText(RegisterActivity.this, "Erreur réseau : " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<RegisterResponse> call, Throwable t) {
+                    Log.e("RegisterActivity", "Erreur réseau", t);
+                    if (!isDestroyed()) {
+                        Toast.makeText(RegisterActivity.this, "Erreur réseau : " + t.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Log.e("RegisterActivity", "Erreur registerUser", e);
+            Toast.makeText(this, "Erreur : " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 }
