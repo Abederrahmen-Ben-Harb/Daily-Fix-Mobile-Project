@@ -1,8 +1,15 @@
 package com.example.dailyfix;
 
+import com.google.gson.annotations.SerializedName;
+
 public class User {
+    @SerializedName("fullName")
     private String name;
+
+    @SerializedName("email")
     private String email;
+
+    @SerializedName("password")
     private String password;
 
     // Constructeur pour l'inscription

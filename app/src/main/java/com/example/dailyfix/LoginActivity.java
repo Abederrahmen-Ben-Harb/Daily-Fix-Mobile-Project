@@ -31,6 +31,27 @@ public class LoginActivity extends AppCompatActivity {
         btnTabInscription = findViewById(R.id.btnTabInscription);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
 
+        // Navigation vers l'inscription via l'onglet
+        if (btnTabInscription != null) {
+            btnTabInscription.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+                    finish();
+                }
+            });
+        }
+
+        // Navigation vers la connexion (déjà sur cet écran, mais pour la cohérence)
+        if (btnTabConnexion != null) {
+            btnTabConnexion.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Déjà sur LoginActivity
+                }
+            });
+        }
+
         // Gestion du clic sur le bouton de connexion
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,11 +66,11 @@ public class LoginActivity extends AppCompatActivity {
                     User user = new User(email, password);
                     ApiService apiService = ApiClient.getClient().create(ApiService.class);
 
-                    Call<User> call = apiService.loginUser(user);
-                    call.enqueue(new Callback<User>() {
+                    Call<LoginResponse> call = apiService.loginUser(user);
+                    call.enqueue(new Callback<LoginResponse>() {
                         @Override
-                        public void onResponse(Call<User> call, Response<User> response) {
-                            if (response.isSuccessful()) {
+                        public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                            if (response.isSuccessful() && response.body() != null) {
                                 Toast.makeText(LoginActivity.this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
                                 // Rediriger vers le tableau de bord (DashboardActivity)
                                 // startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
@@ -59,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onFailure(Call<User> call, Throwable t) {
+                        public void onFailure(Call<LoginResponse> call, Throwable t) {
                             Toast.makeText(LoginActivity.this, "Erreur réseau : " + t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -83,14 +104,16 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Navigation vers l'écran d'inscription
-        btnTabInscription.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-                finish(); // Ferme l'activité actuelle pour éviter d'empiler les écrans
-            }
-        });
+        // Navigation vers l'écran d'inscription (doublon supprimé si nécessaire, mais ici on garde la logique existante avec sécurité)
+        if (btnTabInscription != null) {
+            btnTabInscription.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+        }
     }
 }

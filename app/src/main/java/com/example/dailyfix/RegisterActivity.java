@@ -11,9 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 public class RegisterActivity  extends AppCompatActivity {
     private EditText etName, etEmail, etPassword;
-    private Button btnRegister, btnTabConnexion;
+    private Button btnRegister, btnTabConnexion, btnTabInscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,16 +27,19 @@ public class RegisterActivity  extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnRegister = findViewById(R.id.btnRegister);
         btnTabConnexion = findViewById(R.id.btnTabConnexion);
+        btnTabInscription = findViewById(R.id.btnTabInscription);
 
         // Navigation vers l'écran de connexion
-        btnTabConnexion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish(); // Ferme l'activité actuelle
-            }
-        });
+        if (btnTabConnexion != null) {
+            btnTabConnexion.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish(); // Ferme l'activité actuelle
+                }
+            });
+        }
 
         // Action d'inscription
         btnRegister.setOnClickListener(new View.OnClickListener() {
@@ -60,22 +64,27 @@ public class RegisterActivity  extends AppCompatActivity {
         User user = new User(name, email, password);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
 
-        Call<User> call = apiService.registerUser(user);
-        call.enqueue(new Callback<User>() {
+        Call<RegisterResponse> call = apiService.registerUser(user);
+        call.enqueue(new Callback<RegisterResponse>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
-                if (response.isSuccessful()) {
+            public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(RegisterActivity.this, "Inscription réussie !", Toast.LENGTH_SHORT).show();
                     // Rediriger vers l'écran de connexion après succès
                     startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                     finish();
                 } else {
-                    Toast.makeText(RegisterActivity.this, "Erreur *** lors de l'inscription", Toast.LENGTH_SHORT).show();
+                    String errorMsg = "Erreur lors de l'inscription";
+                    if (response.code() == 400) {
+                        errorMsg = "Données invalides ou utilisateur déjà existant";
+                    }
+                    Toast.makeText(RegisterActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable t) {
+            public void onFailure(Call<RegisterResponse> call, Throwable t) {
+                Log.e("RegisterActivity", "Erreur réseau", t);
                 Toast.makeText(RegisterActivity.this, "Erreur réseau : " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
