@@ -71,9 +71,23 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                             if (response.isSuccessful() && response.body() != null) {
+                                LoginResponse loginResponse = response.body();
                                 Toast.makeText(LoginActivity.this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
-                                // Rediriger vers le tableau de bord (DashboardActivity)
-                                // startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
+
+                                String userName = "";
+                                if (loginResponse.getUser() != null && loginResponse.getUser().getName() != null) {
+                                    userName = loginResponse.getUser().getName().split(" ")[0];
+                                } else if (loginResponse.getUser() != null && loginResponse.getUser().getEmail() != null) {
+                                    userName = loginResponse.getUser().getEmail().split("@")[0];
+                                }
+
+                                HomeActivity.saveUserSession(LoginActivity.this, userName, loginResponse.getToken());
+
+                                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                intent.putExtra("userName", userName);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
                             } else {
                                 Toast.makeText(LoginActivity.this, "Email ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
                             }

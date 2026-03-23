@@ -1,3 +1,46 @@
 <resources>
     <string name="app_name">DailyFix</string>
+
+    <!-- Home page -->
+    <string name="home_greeting">Bonjour</string>
+    <string name="home_greeting_user">Bonjour %1$s !</string>
+    <string name="home_ready">Prêt à organiser votre journée ?</string>
+    <string name="home_stats_title">Statistiques de l\'application</string>
+    <string name="home_total_expenses">Dépenses totales</string>
+    <string name="home_savings_goals">Objectifs d\'épargne</string>
+    <string name="home_active_goals">Objectifs actifs</string>
+    <string name="home_health_records">Fiches santé</string>
+    <string name="home_social_events_count">Événements</string>
+    <string name="home_total_tasks">Tâches</string>
+    <string name="home_today_tasks">Tâches du jour</string>
+    <string name="home_health_score">Score santé</string>
+    <string name="home_remaining_balance">Solde restant</string>
+    <string name="home_events">Événements</string>
+    <string name="home_dashboard">Tableau de bord</string>
+    <string name="home_task_management">Gestion des tâches</string>
+    <string name="home_task_management_desc">Suivez et complétez vos tâches</string>
+    <string name="home_completed_today_progress">Complétées aujourd\'hui: 0/0</string>
+    <string name="home_manage_tasks">Gérer les tâches</string>
+    <string name="home_health_tracking">Suivi santé</string>
+    <string name="home_health_tracking_desc">Meals, eau, activité, sommeil</string>
+    <string name="home_update_health">Mettre à jour ma santé</string>
+    <string name="home_finances">Finances</string>
+    <string name="home_finances_desc">Gérez vos dépenses et budget</string>
+    <string name="home_add_expense">Ajouter une dépense</string>
+    <string name="home_domestic_org">Organisation domestique</string>
+    <string name="home_domestic_org_desc">Tâches ménagères et listes</string>
+    <string name="home_plan_task">Planifier une tâche</string>
+    <string name="home_social_events">Événements sociaux</string>
+    <string name="home_social_events_desc">Sorties et rendez-vous</string>
+    <string name="home_new_event">Nouvel événement</string>
+    <string name="home_personal_dev">Développement personnel</string>
+    <string name="home_personal_dev_desc">Objectifs et bien-être</string>
+    <string name="home_new_goal">Nouvel objectif</string>
+
+    <!-- Navbar -->
+    <string name="nav_menu">Menu</string>
+    <string name="nav_free_version">Version gratuite</string>
+    <string name="nav_theme_toggle">Changer le thème</string>
+    <string name="nav_settings">Paramètres</string>
+    <string name="nav_logout">Déconnexion</string>
 </resources>

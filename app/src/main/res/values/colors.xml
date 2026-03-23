@@ -8,4 +8,15 @@
     <color name="border_gray">#E0E0E0</color>
     <color name="link_blue">#2196F3</color>
     <color name="tab_inactive">#F0F0F0</color>
+
+    <!-- Home page card colors -->
+    <color name="card_blue">#4A90D9</color>
+    <color name="card_green">#5CB85C</color>
+    <color name="card_purple">#7B68EE</color>
+    <color name="card_orange">#F0AD4E</color>
+    <color name="card_blue_light">#E3F2FD</color>
+    <color name="card_green_light">#E8F5E9</color>
+    <color name="card_purple_light">#EDE7F6</color>
+    <color name="card_orange_light">#FFF3E0</color>
+    <color name="card_violet_light">#F3E5F5</color>
 </resources>
