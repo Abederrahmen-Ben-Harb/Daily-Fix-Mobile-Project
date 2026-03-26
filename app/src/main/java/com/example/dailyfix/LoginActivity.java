@@ -80,11 +80,17 @@ public class LoginActivity extends AppCompatActivity {
                                 } else if (loginResponse.getUser() != null && loginResponse.getUser().getEmail() != null) {
                                     userName = loginResponse.getUser().getEmail().split("@")[0];
                                 }
-
-                                HomeActivity.saveUserSession(LoginActivity.this, userName, loginResponse.getToken());
-
-                                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                String role = loginResponse.getUser() != null ? loginResponse.getUser().getRole() : null;
+                                HomeActivity.saveUserSession(LoginActivity.this, userName, loginResponse.getToken(), role);
+                                boolean isAdmin = loginResponse.getUser() != null
+                                        && loginResponse.getUser().getRole() != null
+                                        && "admin".equalsIgnoreCase(loginResponse.getUser().getRole());
+                                Intent intent = new Intent(
+                                        LoginActivity.this,
+                                        isAdmin ? AdminActivity.class : HomeActivity.class
+                                );
                                 intent.putExtra("userName", userName);
+                                intent.putExtra("userRole", role);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(intent);
                                 finish();

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -14,18 +15,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 public class HomeActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "DailyFixPrefs";
     private static final String KEY_USER_NAME = "user_name";
     private static final String KEY_AUTH_TOKEN = "auth_token";
+    private static final String KEY_USER_ROLE = "user_role";
     private static final String KEY_NIGHT_MODE = "night_mode";
 
     private TextView tvGreeting;
     private TextView btnStatsToggle;
     private LinearLayout statsContent;
+    private DrawerLayout drawerLayout;
     private boolean statsExpanded = true;
     private String userName;
+    private boolean isAdmin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +39,14 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         userName = getIntent().getStringExtra("userName");
+        String userRole = getIntent().getStringExtra("userRole");
         if (userName == null || userName.isEmpty()) {
             userName = getStoredUserName();
         }
+        if (userRole == null || userRole.isEmpty()) {
+            userRole = getStoredUserRole();
+        }
+        isAdmin = "admin".equalsIgnoreCase(userRole);
         if (userName == null || userName.isEmpty()) {
             userName = getString(R.string.app_name);
         }
@@ -48,9 +58,48 @@ public class HomeActivity extends AppCompatActivity {
         statsContent = findViewById(R.id.statsContent);
         btnStatsToggle.setOnClickListener(v -> toggleStatsSection());
 
+        setupSidebar();
         setupNavbar();
         setupDashboardButtons();
         updateStatsWithPlaceholderData();
+    }
+
+    private void setupSidebar() {
+        drawerLayout = findViewById(R.id.homeDrawerLayout);
+        Button btnSidebarHome = findViewById(R.id.btnSidebarHome);
+        Button btnSidebarTasks = findViewById(R.id.btnSidebarTasks);
+        Button btnSidebarHealth = findViewById(R.id.btnSidebarHealth);
+        Button btnSidebarFinance = findViewById(R.id.btnSidebarFinance);
+        Button btnSidebarSocial = findViewById(R.id.btnSidebarSocial);
+        Button btnSidebarWellness = findViewById(R.id.btnSidebarWellness);
+        Button btnSidebarAdmin = findViewById(R.id.btnSidebarAdmin);
+        Button btnSidebarLogout = findViewById(R.id.btnSidebarLogout);
+
+        if (btnSidebarHome != null) btnSidebarHome.setOnClickListener(v -> closeSidebar());
+        if (btnSidebarAdmin != null) {
+            btnSidebarAdmin.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
+            btnSidebarAdmin.setOnClickListener(v -> {
+                closeSidebar();
+                startActivity(new Intent(HomeActivity.this, AdminActivity.class));
+            });
+        }
+        if (btnSidebarTasks != null) btnSidebarTasks.setOnClickListener(v -> sidebarFeature("Tasks"));
+        if (btnSidebarHealth != null) btnSidebarHealth.setOnClickListener(v -> sidebarFeature("Health"));
+        if (btnSidebarFinance != null) btnSidebarFinance.setOnClickListener(v -> sidebarFeature("Finance"));
+        if (btnSidebarSocial != null) btnSidebarSocial.setOnClickListener(v -> sidebarFeature("Social"));
+        if (btnSidebarWellness != null) btnSidebarWellness.setOnClickListener(v -> sidebarFeature("Wellness"));
+        if (btnSidebarLogout != null) btnSidebarLogout.setOnClickListener(v -> logout());
+    }
+
+    private void sidebarFeature(String feature) {
+        closeSidebar();
+        Toast.makeText(this, feature + " - Bientot disponible", Toast.LENGTH_SHORT).show();
+    }
+
+    private void closeSidebar() {
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(Gravity.START)) {
+            drawerLayout.closeDrawer(Gravity.START);
+        }
     }
 
     private void applySavedTheme() {
@@ -67,7 +116,11 @@ public class HomeActivity extends AppCompatActivity {
         TextView tvProfileName = findViewById(R.id.tvProfileName);
 
         if (btnMenu != null) {
-            btnMenu.setOnClickListener(v -> Toast.makeText(this, R.string.nav_menu, Toast.LENGTH_SHORT).show());
+            btnMenu.setOnClickListener(v -> {
+                if (drawerLayout != null) {
+                    drawerLayout.openDrawer(Gravity.START);
+                }
+            });
         }
         if (btnThemeToggle != null) {
             updateThemeIcon(btnThemeToggle);
@@ -139,6 +192,11 @@ public class HomeActivity extends AppCompatActivity {
         return prefs.getString(KEY_USER_NAME, null);
     }
 
+    private String getStoredUserRole() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        return prefs.getString(KEY_USER_ROLE, null);
+    }
+
     private void toggleStatsSection() {
         statsExpanded = !statsExpanded;
         statsContent.setVisibility(statsExpanded ? View.VISIBLE : View.GONE);
@@ -187,10 +245,15 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public static void saveUserSession(android.content.Context context, String userName, String token) {
+        saveUserSession(context, userName, token, null);
+    }
+
+    public static void saveUserSession(android.content.Context context, String userName, String token, String role) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE);
         prefs.edit()
                 .putString(KEY_USER_NAME, userName)
                 .putString(KEY_AUTH_TOKEN, token)
+                .putString(KEY_USER_ROLE, role)
                 .apply();
     }
 }
