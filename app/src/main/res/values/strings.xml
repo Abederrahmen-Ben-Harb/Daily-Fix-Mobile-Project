@@ -43,4 +43,20 @@
     <string name="nav_theme_toggle">Changer le thème</string>
     <string name="nav_settings">Paramètres</string>
     <string name="nav_logout">Déconnexion</string>
+    <string name="nav_title_user">Navigation</string>
+    <string name="nav_title_admin">Administration</string>
+    <string name="nav_item_home">Accueil</string>
+    <string name="nav_item_tasks">Taches</string>
+    <string name="nav_item_health">Sante</string>
+    <string name="nav_item_finance">Finance</string>
+    <string name="nav_item_social">Social</string>
+    <string name="nav_item_wellness">Bien-etre</string>
+    <string name="nav_item_admin_dashboard">Dashboard Admin</string>
+
+    <!-- Admin -->
+    <string name="admin_title">Dashboard Admin</string>
+    <string name="admin_back_home">← Accueil</string>
+    <string name="admin_general_stats">Statistiques générales</string>
+    <string name="admin_users_management">Gestion des utilisateurs</string>
+    <string name="admin_users_management_hint">Cette section est prête pour brancher la liste utilisateurs, recherche, pagination et modals de création/édition/suppression.</string>
 </resources>
