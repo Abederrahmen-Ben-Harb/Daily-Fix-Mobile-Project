@@ -23,6 +23,11 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         // Initialisation des vues
+        initViews();
+        setupListeners();
+    }
+
+    private void initViews() {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
@@ -30,110 +35,96 @@ public class LoginActivity extends AppCompatActivity {
         btnTabConnexion = findViewById(R.id.btnTabConnexion);
         btnTabInscription = findViewById(R.id.btnTabInscription);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
+    }
 
-        // Navigation vers l'inscription via l'onglet
+    private void setupListeners() {
         if (btnTabInscription != null) {
-            btnTabInscription.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
-                    finish();
-                }
-            });
+            btnTabInscription.setOnClickListener(v -> navigateToRegister());
         }
 
-        // Navigation vers la connexion (déjà sur cet écran, mais pour la cohérence)
         if (btnTabConnexion != null) {
-            btnTabConnexion.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Déjà sur LoginActivity
-                }
+            btnTabConnexion.setOnClickListener(v -> {
+                // Already on login screen.
             });
         }
 
-        // Gestion du clic sur le bouton de connexion
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email = etEmail.getText().toString().trim();
-                String password = etPassword.getText().toString().trim();
+        if (btnLogin != null) {
+            btnLogin.setOnClickListener(v -> login());
+        }
 
-                if (email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(LoginActivity.this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
+        if (btnGoogleLogin != null) {
+            btnGoogleLogin.setOnClickListener(v ->
+                    Toast.makeText(LoginActivity.this, "Connexion Google en cours...", Toast.LENGTH_SHORT).show());
+        }
+
+        if (tvForgotPassword != null) {
+            tvForgotPassword.setOnClickListener(v ->
+                    Toast.makeText(LoginActivity.this, "Redirection vers récupération de mot de passe", Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private void navigateToRegister() {
+        startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+        finish();
+    }
+
+    private void login() {
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(LoginActivity.this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        User user = new User(email, password);
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<LoginResponse> call = apiService.loginUser(user);
+        call.enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    handleLoginSuccess(response.body());
                 } else {
-                    // Appel de l'API Node.js via Retrofit
-                    User user = new User(email, password);
-                    ApiService apiService = ApiClient.getClient().create(ApiService.class);
-
-                    Call<LoginResponse> call = apiService.loginUser(user);
-                    call.enqueue(new Callback<LoginResponse>() {
-                        @Override
-                        public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                            if (response.isSuccessful() && response.body() != null) {
-                                LoginResponse loginResponse = response.body();
-                                Toast.makeText(LoginActivity.this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
-
-                                String userName = "";
-                                if (loginResponse.getUser() != null && loginResponse.getUser().getName() != null) {
-                                    userName = loginResponse.getUser().getName().split(" ")[0];
-                                } else if (loginResponse.getUser() != null && loginResponse.getUser().getEmail() != null) {
-                                    userName = loginResponse.getUser().getEmail().split("@")[0];
-                                }
-                                String role = loginResponse.getUser() != null ? loginResponse.getUser().getRole() : null;
-                                HomeActivity.saveUserSession(LoginActivity.this, userName, loginResponse.getToken(), role);
-                                boolean isAdmin = loginResponse.getUser() != null
-                                        && loginResponse.getUser().getRole() != null
-                                        && "admin".equalsIgnoreCase(loginResponse.getUser().getRole());
-                                Intent intent = new Intent(
-                                        LoginActivity.this,
-                                        isAdmin ? AdminActivity.class : HomeActivity.class
-                                );
-                                intent.putExtra("userName", userName);
-                                intent.putExtra("userRole", role);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
-                                finish();
-                            } else {
-                                Toast.makeText(LoginActivity.this, "Email ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<LoginResponse> call, Throwable t) {
-                            Toast.makeText(LoginActivity.this, "Erreur réseau : " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    Toast.makeText(LoginActivity.this, "Email ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
                 }
             }
-        });
 
-        // Gestion du clic sur le bouton Google
-        btnGoogleLogin.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Toast.makeText(LoginActivity.this, "Connexion Google en cours...", Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                Toast.makeText(LoginActivity.this, "Erreur réseau : " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
-        // Gestion du mot de passe oublié
-        tvForgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(LoginActivity.this, "Redirection vers récupération de mot de passe", Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void handleLoginSuccess(LoginResponse loginResponse) {
+        Toast.makeText(LoginActivity.this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
 
-        // Navigation vers l'écran d'inscription (doublon supprimé si nécessaire, mais ici on garde la logique existante avec sécurité)
-        if (btnTabInscription != null) {
-            btnTabInscription.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-            });
+        User loggedUser = loginResponse.getUser();
+        String userName = extractUserName(loggedUser);
+        String role = loggedUser != null ? loggedUser.getRole() : null;
+        boolean isAdmin = "admin".equalsIgnoreCase(role);
+
+        SessionManager.saveUserSession(LoginActivity.this, userName, loginResponse.getToken(), role);
+
+        Intent intent = new Intent(LoginActivity.this, isAdmin ? AdminActivity.class : HomeActivity.class);
+        intent.putExtra("userName", userName);
+        intent.putExtra("userRole", role);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private String extractUserName(User user) {
+        if (user == null) {
+            return "";
         }
+        if (user.getName() != null && !user.getName().trim().isEmpty()) {
+            return user.getName().split(" ")[0];
+        }
+        if (user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
+            return user.getEmail().split("@")[0];
+        }
+        return "";
     }
 }

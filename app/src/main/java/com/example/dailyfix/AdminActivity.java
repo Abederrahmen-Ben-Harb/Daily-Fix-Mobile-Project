@@ -1,7 +1,6 @@
 package com.example.dailyfix;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -12,7 +11,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.view.Gravity;
 
 public class AdminActivity extends AppCompatActivity {
-    private static final String PREFS_NAME = "DailyFixPrefs";
     private DrawerLayout drawerLayout;
 
     @Override
@@ -84,8 +82,7 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        prefs.edit().clear().apply();
+        SessionManager.clearSession(this);
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

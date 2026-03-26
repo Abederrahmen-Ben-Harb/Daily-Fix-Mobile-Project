@@ -1,11 +1,9 @@
 package com.example.dailyfix;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -18,12 +16,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 public class HomeActivity extends AppCompatActivity {
-    private static final String PREFS_NAME = "DailyFixPrefs";
-    private static final String KEY_USER_NAME = "user_name";
-    private static final String KEY_AUTH_TOKEN = "auth_token";
-    private static final String KEY_USER_ROLE = "user_role";
-    private static final String KEY_NIGHT_MODE = "night_mode";
-
     private TextView tvGreeting;
     private TextView btnStatsToggle;
     private LinearLayout statsContent;
@@ -41,10 +33,10 @@ public class HomeActivity extends AppCompatActivity {
         userName = getIntent().getStringExtra("userName");
         String userRole = getIntent().getStringExtra("userRole");
         if (userName == null || userName.isEmpty()) {
-            userName = getStoredUserName();
+            userName = SessionManager.getUserName(this);
         }
         if (userRole == null || userRole.isEmpty()) {
-            userRole = getStoredUserRole();
+            userRole = SessionManager.getUserRole(this);
         }
         isAdmin = "admin".equalsIgnoreCase(userRole);
         if (userName == null || userName.isEmpty()) {
@@ -103,8 +95,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void applySavedTheme() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        int nightMode = prefs.getInt(KEY_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        int nightMode = SessionManager.getNightMode(this, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         AppCompatDelegate.setDefaultNightMode(nightMode);
     }
 
@@ -158,7 +149,7 @@ public class HomeActivity extends AppCompatActivity {
                 ? AppCompatDelegate.MODE_NIGHT_NO
                 : AppCompatDelegate.MODE_NIGHT_YES;
         AppCompatDelegate.setDefaultNightMode(newMode);
-        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(KEY_NIGHT_MODE, newMode).apply();
+        SessionManager.setNightMode(this, newMode);
         recreate();
     }
 
@@ -180,21 +171,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().clear().apply();
+        SessionManager.clearSession(this);
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
-    }
-
-    private String getStoredUserName() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        return prefs.getString(KEY_USER_NAME, null);
-    }
-
-    private String getStoredUserRole() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        return prefs.getString(KEY_USER_ROLE, null);
     }
 
     private void toggleStatsSection() {
@@ -244,16 +225,4 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    public static void saveUserSession(android.content.Context context, String userName, String token) {
-        saveUserSession(context, userName, token, null);
-    }
-
-    public static void saveUserSession(android.content.Context context, String userName, String token, String role) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE);
-        prefs.edit()
-                .putString(KEY_USER_NAME, userName)
-                .putString(KEY_AUTH_TOKEN, token)
-                .putString(KEY_USER_ROLE, role)
-                .apply();
-    }
 }
